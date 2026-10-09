@@ -1,0 +1,8 @@
+Dataset notes — Colombo Metro delivery routing
+Snapshot included: 102 rows (1 depot + 101 delivery/locality nodes).
+The locality names are real places in Colombo and the Western Province corridor. Coordinates are approximate representative locality-centre points, rounded for this educational benchmark; they are not verified customer addresses or a raw direct download of all OSM node records.
+Distance matrix uses Haversine great-circle distance (km), which underestimates/ differs from road-network distance. Do not describe it as actual driving distance.
+Public source references:
+- OpenStreetMap copyright/licence: https://www.openstreetmap.org/copyright
+- Geofabrik Sri Lanka extract page: https://download.geofabrik.de/asia/sri-lanka.html
+For stronger empirical validity, use src/fetch_osm_pois.py with internet access to create a timestamped, real OSM POI snapshot; then use an OSM road-routing engine to obtain network distances. Preserve the retrieval timestamp and attribution.

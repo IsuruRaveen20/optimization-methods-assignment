@@ -1,0 +1,103 @@
+node_id,location_name,latitude,longitude,node_type
+0,Depot - Colombo Fort,6.9344,79.8428,depot
+1,Pettah,6.9388,79.85,delivery
+2,Kollupitiya,6.9147,79.848,delivery
+3,Bambalapitiya,6.8936,79.856,delivery
+4,Wellawatte,6.8742,79.86,delivery
+5,Dehiwala,6.851,79.865,delivery
+6,Mount Lavinia,6.8389,79.865,delivery
+7,Nugegoda,6.8728,79.889,delivery
+8,Rajagiriya,6.909,79.895,delivery
+9,Battaramulla,6.902,79.918,delivery
+10,Borella,6.914,79.877,delivery
+11,Maradana,6.928,79.864,delivery
+12,Kirulapone,6.879,79.874,delivery
+13,Narahenpita,6.89,79.877,delivery
+14,Orugodawatta,6.947,79.879,delivery
+15,Peliyagoda,6.968,79.879,delivery
+16,Wellampitiya,6.936,79.891,delivery
+17,Kotte,6.89,79.902,delivery
+18,Pannipitiya,6.846,79.947,delivery
+19,Maharagama,6.848,79.926,delivery
+20,Boralesgamuwa,6.841,79.9,delivery
+21,Piliyandala,6.801,79.922,delivery
+22,Kaduwela,6.936,79.984,delivery
+23,Malabe,6.906,79.954,delivery
+24,Athurugiriya,6.873,80.001,delivery
+25,Homagama,6.844,80.003,delivery
+26,Kottawa,6.841,79.965,delivery
+27,Kesbewa,6.79,79.94,delivery
+28,Moratuwa,6.773,79.881,delivery
+29,Ratmalana,6.817,79.876,delivery
+30,Slave Island,6.92580,79.85000,delivery
+31,Union Place,6.91770,79.85600,delivery
+32,Havelock Town,6.89000,79.86900,delivery
+33,Thimbirigasyaya,6.89000,79.87800,delivery
+34,Kirulapone North,6.88600,79.87500,delivery
+35,Pamankada,6.88300,79.87500,delivery
+36,Wellawatte North,6.88200,79.86000,delivery
+37,Bambalapitiya North,6.90000,79.85600,delivery
+38,Milagiriya,6.89700,79.85800,delivery
+39,Kirimandala Mawatha,6.88900,79.88300,delivery
+40,Nawala,6.88800,79.88900,delivery
+41,Koswatta,6.90600,79.92500,delivery
+42,Ethul Kotte,6.89200,79.90600,delivery
+43,Pita Kotte,6.88600,79.90100,delivery
+44,Mirihana,6.87500,79.89900,delivery
+45,Udahamulla,6.87200,79.91000,delivery
+46,Wijerama,6.86800,79.88700,delivery
+47,Delkanda,6.86500,79.89100,delivery
+48,Gangodawila,6.86200,79.90000,delivery
+49,Navinna,6.85200,79.91200,delivery
+50,Watapuluwa,6.85400,79.92000,delivery
+51,Pamunuwa,6.84700,79.93100,delivery
+52,Thalawathugoda,6.87200,79.94100,delivery
+53,Talangama,6.90400,79.94000,delivery
+54,Pelawatte,6.89200,79.93700,delivery
+55,Akuregoda,6.88700,79.94800,delivery
+56,Diyatha Uyana,6.90700,79.91600,delivery
+57,Battaramulla Junction,6.90000,79.91800,delivery
+58,Pannipitiya Junction,6.84600,79.94700,delivery
+59,Makumbura,6.84000,79.95100,delivery
+60,Meegoda,6.84000,80.03500,delivery
+61,Godagama,6.83800,80.04000,delivery
+62,Watareka,6.82900,80.04800,delivery
+63,Padukka,6.84600,80.09100,delivery
+64,Hanwella,6.90600,80.08500,delivery
+65,Avissawella,6.95400,80.21100,delivery
+66,Seethawaka,6.95600,80.19000,delivery
+67,Kaduwela Town,6.93400,79.98400,delivery
+68,Biyagama,6.94100,80.00200,delivery
+69,Malwana,6.95800,80.03500,delivery
+70,Kiribathgoda,6.97800,79.92900,delivery
+71,Kelaniya,6.95500,79.92200,delivery
+72,Wattala,6.98900,79.89100,delivery
+73,Hendala,6.99800,79.88400,delivery
+74,Ja-Ela,7.07500,79.89100,delivery
+75,Kandana,7.04800,79.89500,delivery
+76,Ragama,7.02900,79.91700,delivery
+77,Kadawatha,7.00100,79.95100,delivery
+78,Mahara,7.01300,79.93900,delivery
+79,Ganemulla,7.03000,79.98800,delivery
+80,Gampaha,7.08700,80.01400,delivery
+81,Minuwangoda,7.17400,79.95800,delivery
+82,Seeduwa,7.13200,79.88500,delivery
+83,Katunayake,7.16900,79.88400,delivery
+84,Negombo,7.20800,79.83500,delivery
+85,Kochchikade,7.26000,79.85500,delivery
+86,Nittambuwa,7.14400,80.09800,delivery
+87,Veyangoda,7.15600,80.05800,delivery
+88,Pugoda,6.99900,80.13100,delivery
+89,Dompe,6.94900,80.08400,delivery
+90,Moratuwa Town,6.77300,79.88100,delivery
+91,Katubedda,6.79700,79.88200,delivery
+92,Rawathawatta,6.78900,79.88700,delivery
+93,Angulana,6.79000,79.87900,delivery
+94,Lunawa,6.78200,79.88300,delivery
+95,Panadura,6.71300,79.90400,delivery
+96,Wadduwa,6.66800,79.92300,delivery
+97,Keselwatta,6.70100,79.91200,delivery
+98,Bandaragama,6.51900,79.98600,delivery
+99,Horana,6.71500,80.06200,delivery
+100,Ingiriya,6.73800,80.17800,delivery
+101,Kalutara,6.58500,79.96000,delivery
