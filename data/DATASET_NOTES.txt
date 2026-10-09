@@ -1,8 +1,33 @@
-Dataset notes — Colombo Metro delivery routing
-Snapshot included: 102 rows (1 depot + 101 delivery/locality nodes).
-The locality names are real places in Colombo and the Western Province corridor. Coordinates are approximate representative locality-centre points, rounded for this educational benchmark; they are not verified customer addresses or a raw direct download of all OSM node records.
-Distance matrix uses Haversine great-circle distance (km), which underestimates/ differs from road-network distance. Do not describe it as actual driving distance.
-Public source references:
-- OpenStreetMap copyright/licence: https://www.openstreetmap.org/copyright
-- Geofabrik Sri Lanka extract page: https://download.geofabrik.de/asia/sri-lanka.html
-For stronger empirical validity, use src/fetch_osm_pois.py with internet access to create a timestamped, real OSM POI snapshot; then use an OSM road-routing engine to obtain network distances. Preserve the retrieval timestamp and attribution.
+Dataset notes - Colombo metro delivery routing
+================================================
+Files
+- colombo_delivery_locations.csv : 100 nodes = 1 depot (Colombo Fort) + 99 named localities in the
+  Colombo / Gampaha / Kalutara corridor. Columns: node_id, location_name, latitude, longitude, node_type.
+- distance_matrix_km.csv         : derived file. Pairwise Haversine great-circle distances (km) computed
+  from the locations file by src/build_matrix.py. The solvers recompute distances from the locations
+  file; the matrix CSV is kept for transparency and is checked for consistency by src/validate_data.py.
+- osm_validation.csv             : cross-check of every locality against OpenStreetMap (Nominatim),
+  retrieved 2026-10-14 by src/validate_against_osm.py.
+
+Provenance
+The locality names are real places. Coordinates are approximate representative locality-centre points
+curated by the team; they are NOT customer addresses. To check them, every name was geocoded against
+OpenStreetMap: 95 of 102 original names returned a match, the median offset was 0.75 km and 77 of 95 were
+within 2 km. Offsets above 3 km were reviewed by hand (column "status" in osm_validation.csv).
+
+Corrections made after the OSM check (original file had 102 rows)
+- Bandaragama: latitude was 6.519 (21.7 km off); corrected to OSM place node 6.7145, 79.989.
+- Ganemulla: was 5.2 km from the OSM place node; corrected to 7.0683, 79.9614.
+- Kochchikade renamed "Kochchikade (Negombo)" because a Colombo-15 locality has the same name.
+- "Pannipitiya Junction" and "Moratuwa Town" removed: they had exactly the same coordinates as
+  "Pannipitiya" and "Moratuwa" (zero distance), which adds no routing information.
+- node_id values were renumbered 0..99. osm_validation.csv keeps the ORIGINAL ids in "original_node_id".
+Several localities remain very close together (e.g. Narahenpita/Thimbirigasyaya 0.11 km); they are
+distinct places, but they make the instance slightly easier than a set of well-separated customers.
+
+Known limitations
+- Distances are straight-line Haversine distances, which are shorter than road distances.
+- One vehicle, no demands, capacities, time windows or traffic.
+- Nominatim sometimes returned a homonym or a district centroid; those cases were not used to move points.
+
+Attribution: (c) OpenStreetMap contributors, ODbL 1.0 - https://www.openstreetmap.org/copyright
