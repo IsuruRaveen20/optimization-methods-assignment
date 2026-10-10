@@ -43,3 +43,24 @@ def held_karp(d):
         j = prev
     tour += path[::-1] + [0]
     return best, tour
+
+
+def one_tree_bound(d):
+    """Lower bound on the optimal tour length (1-tree relaxation).
+
+    Minimum spanning tree over nodes 1..n-1 (Prim) plus the two cheapest edges
+    at the depot. Every tour contains such a structure, so tour >= bound.
+    """
+    n = len(d)
+    in_tree = [False] * n
+    key = [float("inf")] * n
+    key[1] = 0.0
+    total = 0.0
+    for _ in range(n - 1):
+        u = min((v for v in range(1, n) if not in_tree[v]), key=lambda v: key[v])
+        in_tree[u] = True
+        total += key[u]
+        for v in range(1, n):
+            if not in_tree[v] and d[u][v] < key[v]:
+                key[v] = d[u][v]
+    return total + sum(sorted(d[0][1:])[:2])

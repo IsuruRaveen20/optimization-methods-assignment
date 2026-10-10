@@ -27,6 +27,12 @@ class SolverTests(unittest.TestCase):
             self.assertAlmostEqual(best, brute_force(d), places=9)
             self.assertAlmostEqual(best, heuristics.tour_length(tour, d), places=9)
 
+    def test_one_tree_bound_is_a_valid_lower_bound(self):
+        for seed in range(5):
+            d = random_matrix(9, seed)
+            opt, _ = exact.held_karp(d)
+            self.assertLessEqual(exact.one_tree_bound(d), opt + 1e-9)
+
     def test_tours_are_feasible_and_never_better_than_optimum(self):
         d = random_matrix(10, 42)
         opt, _ = exact.held_karp(d)
