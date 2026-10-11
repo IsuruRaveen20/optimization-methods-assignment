@@ -1,1 +1,3 @@
-# Uses Python standard library only; no pip installation required.
+# Solvers use the Python standard library only.
+# matplotlib is needed only for src/make_plots.py.
+matplotlib>=3.5
