@@ -1,0 +1,16 @@
+---
+title: "Colombo Metro Delivery Route Optimisation"
+subtitle: "Exact (Held-Karp) and heuristic solutions to a 100-node Travelling Salesman Problem"
+author: "Optimization Methods – Programming Assignment (Group of 2)"
+date: "October 2026"
+geometry: margin=2.2cm
+fontsize: 11pt
+colorlinks: true
+linkcolor: blue
+urlcolor: blue
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  - \usepackage{microtype}
+---
