@@ -1,0 +1,6 @@
+method,randomised,runs,best_km,mean_km,std_km,median_runtime_s,feasible,gap_to_best_found_%,gap_to_lower_bound_%
+Nearest Neighbour,False,5,432.7243,432.7243,0.0,0.0002,True,29.187,60.601
+NN + 2-opt,False,5,355.0853,355.0853,0.0,0.00256,True,6.008,31.786
+NN + 2-opt + Or-opt,False,5,342.0867,342.0867,0.0,0.01818,True,2.128,26.962
+Multi-start 2-opt (30 starts),True,5,338.6396,338.7294,0.113,0.07924,True,1.099,25.683
+Iterated local search (300 it.),True,5,334.9597,334.9597,0.0,4.54173,True,-0.0,24.317
