@@ -1,0 +1,2 @@
+Group Member 1 (commits prefixed M1): [Enter full name and student ID]
+Group Member 2 (commits prefixed M2): [Enter full name and student ID]

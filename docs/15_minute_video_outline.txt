@@ -1,0 +1,18 @@
+15-minute presentation outline - Colombo metro delivery route optimisation (100-node TSP)
+Speaker M1 = Group Member 1, M2 = Group Member 2. Use the numbers from your own final run (results/*.csv).
+
+0:00-1:00  (M1) Introduce members, the delivery problem and why it is NP-hard (about 10^155 tours at n = 100).
+1:00-3:00  (M1) Dataset: 100 nodes, real locality names, approximate centres. Show the OpenStreetMap cross-check:
+           median offset 0.75 km; errors found and fixed (Bandaragama 21.7 km off, duplicate nodes removed).
+           State the limitations: Haversine distance, not road distance.
+3:00-5:00  (M1) Mathematical formulation: binary x_ij, degree constraints, MTZ sub-tour elimination; mention the DFJ alternative.
+5:00-7:00  (M1) Exact method: Held-Karp recurrence, O(n^2 2^n) time / O(n 2^n) memory, verified against brute force; live run of
+           python -m unittest discover -s tests.
+7:00-9:00  (M2) Heuristics: nearest neighbour, 2-opt, Or-opt, multi-start, iterated local search - what each one fixes.
+9:00-11:00 (M2) Live demo: python src/run_experiments.py --quick, then open results/ and the route map (NN vs best tour).
+11:00-13:00 (M2) Results: scalability figure (exact x5 per +2 nodes), gap table (ILS = optimum on 35/35 small instances),
+           full instance: NN 432.7 km -> ILS 335.0 km, 1-tree lower bound 269.4 km and why it is weak.
+13:00-14:00 (M2) Discussion and limitations; future work: OSRM road distances, CVRP / time windows, branch-and-cut ILP.
+14:00-15:00 (M1+M2) Individual contributions (show the git log with M1:/M2: commits) and conclusion.
+
+Both members should be able to answer questions on the whole implementation (viva).
