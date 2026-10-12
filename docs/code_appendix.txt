@@ -1,0 +1,768 @@
+CODE APPENDIX - Colombo Metro Delivery Route Optimisation
+============================================================
+
+
+##############################################################################
+# FILE: src/tsp/__init__.py
+##############################################################################
+"""Small TSP toolkit: data loading, exact solver (Held-Karp) and heuristics."""
+
+
+##############################################################################
+# FILE: src/tsp/data.py
+##############################################################################
+"""Dataset loading, Haversine distances and data-quality checks."""
+import csv
+import math
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+LOCATIONS_CSV = ROOT / "data" / "colombo_delivery_locations.csv"
+MATRIX_CSV = ROOT / "data" / "distance_matrix_km.csv"
+EARTH_RADIUS_KM = 6371.0
+
+
+def load_locations(path=LOCATIONS_CSV):
+    """Return a list of (name, latitude, longitude); index == node_id, depot is 0."""
+    with open(path, newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    for expected_id, row in enumerate(rows):
+        if int(row["node_id"]) != expected_id:
+            raise ValueError(f"node_id {row['node_id']} is out of order at row {expected_id}")
+    return [(r["location_name"], float(r["latitude"]), float(r["longitude"])) for r in rows]
+
+
+def haversine_km(a, b):
+    """Great-circle distance in km between two (name, lat, lon) tuples."""
+    p1, p2 = math.radians(a[1]), math.radians(b[1])
+    dp, dl = p2 - p1, math.radians(b[2] - a[2])
+    h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return EARTH_RADIUS_KM * 2 * math.asin(math.sqrt(h))
+
+
+def distance_matrix(points):
+    """Symmetric full matrix of Haversine distances (km)."""
+    n = len(points)
+    d = [[0.0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(i + 1, n):
+            d[i][j] = d[j][i] = haversine_km(points[i], points[j])
+    return d
+
+
+def write_matrix_csv(points, path=MATRIX_CSV):
+    d = distance_matrix(points)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["node_id"] + [p[0] for p in points])
+        for i, row in enumerate(d):
+            w.writerow([i] + [round(x, 4) for x in row])
+
+
+def validate(points, matrix_path=MATRIX_CSV):
+    """Return a list of human-readable problems (empty list == dataset passes)."""
+    problems = []
+    names = [p[0] for p in points]
+    if len(set(names)) != len(names):
+        problems.append("duplicate location names")
+    coords = [(p[1], p[2]) for p in points]
+    if len(set(coords)) != len(coords):
+        problems.append("duplicate coordinates")
+    for name, lat, lon in points:
+        if not (6.4 <= lat <= 7.4 and 79.7 <= lon <= 80.3):
+            problems.append(f"{name}: outside Western Province bounding box")
+    d = distance_matrix(points)
+    with open(matrix_path, newline="", encoding="utf-8") as f:
+        rows = list(csv.reader(f))
+    if rows[0][1:] != names or len(rows) - 1 != len(points):
+        problems.append("distance matrix header/size does not match locations")
+    else:
+        worst = max(abs(float(rows[i + 1][j + 1]) - d[i][j])
+                    for i in range(len(points)) for j in range(len(points)))
+        if worst > 1e-4:
+            problems.append(f"distance matrix is stale (max difference {worst:.4f} km)")
+    return problems
+
+
+##############################################################################
+# FILE: src/tsp/exact.py
+##############################################################################
+"""Exact TSP solver: Held-Karp dynamic programming, O(n^2 * 2^n) time."""
+
+
+def held_karp(d):
+    """Return (optimal_length, tour) for a closed tour starting/ending at node 0.
+
+    State dp[mask][j]: shortest path that starts at node 0, visits exactly the
+    nodes in `mask` (bit k stands for node k+1) and ends at node j+1.
+    """
+    n = len(d)
+    if n < 3:
+        raise ValueError("need at least 3 nodes")
+    m = n - 1
+    full = (1 << m) - 1
+    inf = float("inf")
+    dp = [[inf] * m for _ in range(1 << m)]
+    parent = [[-1] * m for _ in range(1 << m)]
+    for j in range(m):
+        dp[1 << j][j] = d[0][j + 1]
+    for mask in range(1, full + 1):
+        row = dp[mask]
+        for j in range(m):
+            cur = row[j]
+            if cur == inf:
+                continue
+            dj = d[j + 1]
+            for k in range(m):
+                bit = 1 << k
+                if mask & bit:
+                    continue
+                nxt = mask | bit
+                val = cur + dj[k + 1]
+                if val < dp[nxt][k]:
+                    dp[nxt][k] = val
+                    parent[nxt][k] = j
+    best, last = min((dp[full][j] + d[j + 1][0], j) for j in range(m))
+    tour, mask, j = [0], full, last
+    path = []
+    while j != -1:
+        path.append(j + 1)
+        prev = parent[mask][j]
+        mask ^= 1 << j
+        j = prev
+    tour += path[::-1] + [0]
+    return best, tour
+
+
+def one_tree_bound(d):
+    """Lower bound on the optimal tour length (1-tree relaxation).
+
+    Minimum spanning tree over nodes 1..n-1 (Prim) plus the two cheapest edges
+    at the depot. Every tour contains such a structure, so tour >= bound.
+    """
+    n = len(d)
+    in_tree = [False] * n
+    key = [float("inf")] * n
+    key[1] = 0.0
+    total = 0.0
+    for _ in range(n - 1):
+        u = min((v for v in range(1, n) if not in_tree[v]), key=lambda v: key[v])
+        in_tree[u] = True
+        total += key[u]
+        for v in range(1, n):
+            if not in_tree[v] and d[u][v] < key[v]:
+                key[v] = d[u][v]
+    return total + sum(sorted(d[0][1:])[:2])
+
+
+##############################################################################
+# FILE: src/tsp/heuristics.py
+##############################################################################
+"""Constructive heuristics and local search for the TSP.
+
+Tours are lists of node ids that start and end at the depot (node 0),
+e.g. [0, 5, 3, 1, 0]. Internally local search works on the open list
+without the repeated depot at the end.
+"""
+import random
+
+
+def tour_length(tour, d):
+    return sum(d[tour[i]][tour[i + 1]] for i in range(len(tour) - 1))
+
+
+def nearest_neighbour(d, first=None):
+    """Greedy construction. `first` optionally forces the first customer visited."""
+    n = len(d)
+    unvisited = set(range(1, n))
+    tour = [0]
+    if first is not None and first != 0:
+        tour.append(first)
+        unvisited.remove(first)
+    cur = tour[-1]
+    while unvisited:
+        nxt = min(unvisited, key=lambda j: d[cur][j])
+        tour.append(nxt)
+        unvisited.remove(nxt)
+        cur = nxt
+    tour.append(0)
+    return tour
+
+
+def _two_opt(t, d):
+    """First-improvement 2-opt on an open list t (t[0] is the depot). Returns True if improved."""
+    n = len(t)
+    improved_any = False
+    improved = True
+    while improved:
+        improved = False
+        for i in range(1, n - 1):
+            a, b = t[i - 1], t[i]
+            for j in range(i + 1, n):
+                c, e = t[j], t[(j + 1) % n]
+                if d[a][c] + d[b][e] < d[a][b] + d[c][e] - 1e-9:
+                    t[i:j + 1] = reversed(t[i:j + 1])
+                    a, b = t[i - 1], t[i]
+                    improved = improved_any = True
+    return improved_any
+
+
+def _or_opt(t, d, max_seg=3):
+    """Move a segment of 1..max_seg nodes (optionally reversed) to a better place. One move per call."""
+    n = len(t)
+    for seg_len in range(1, max_seg + 1):
+        for i in range(1, n - seg_len + 1):
+            seg = t[i:i + seg_len]
+            prev, nxt = t[i - 1], t[(i + seg_len) % n]
+            removal_gain = d[prev][seg[0]] + d[seg[-1]][nxt] - d[prev][nxt]
+            rest = t[:i] + t[i + seg_len:]
+            r = len(rest)
+            for j in range(r):
+                u, v = rest[j], rest[(j + 1) % r]
+                base = d[u][v]
+                fwd = d[u][seg[0]] + d[seg[-1]][v] - base
+                rev = d[u][seg[-1]] + d[seg[0]][v] - base
+                if fwd < removal_gain - 1e-9:
+                    t[:] = rest[:j + 1] + seg + rest[j + 1:]
+                    return True
+                if rev < removal_gain - 1e-9:
+                    t[:] = rest[:j + 1] + seg[::-1] + rest[j + 1:]
+                    return True
+    return False
+
+
+def two_opt(tour, d):
+    """2-opt local search on a closed tour (depot at both ends)."""
+    t = tour[:-1]
+    _two_opt(t, d)
+    return t + [0]
+
+
+def local_search(tour, d):
+    """Alternate 2-opt and Or-opt until no move improves the tour."""
+    t = tour[:-1]
+    while True:
+        a = _two_opt(t, d)
+        b = _or_opt(t, d)
+        if not (a or b):
+            break
+    return t + [0]
+
+
+def multi_start(d, starts, seed=0, search=two_opt):
+    """Run nearest neighbour from `starts` random first customers, improve each, keep the best."""
+    rng = random.Random(seed)
+    firsts = rng.sample(range(1, len(d)), min(starts, len(d) - 1))
+    best = None
+    for f in firsts:
+        t = search(nearest_neighbour(d, f), d)
+        if best is None or tour_length(t, d) < tour_length(best, d):
+            best = t
+    return best
+
+
+def iterated_local_search(d, iterations, seed=0):
+    """ILS: double-bridge perturbation + 2-opt/Or-opt, accept only improvements."""
+    rng = random.Random(seed)
+    best = local_search(nearest_neighbour(d), d)
+    best_len = tour_length(best, d)
+    n = len(best) - 1
+    if n < 8:
+        return best
+    for _ in range(iterations):
+        t = best[:-1]
+        a, b, c = sorted(rng.sample(range(1, n), 3))
+        cand = local_search(t[:a] + t[b:c] + t[a:b] + t[c:] + [0], d)
+        cand_len = tour_length(cand, d)
+        if cand_len < best_len - 1e-9:
+            best, best_len = cand, cand_len
+    return best
+
+
+##############################################################################
+# FILE: src/run_experiments.py
+##############################################################################
+"""Run all experiments and write the CSV/TXT files in results/.
+
+1. Scalability study  - exact Held-Karp vs heuristics on random subsets of 8..20 nodes.
+2. Full instance      - all heuristics on the complete 100-node instance, repeated runs.
+
+Usage:  python src/run_experiments.py          (about 2-3 minutes)
+        python src/run_experiments.py --quick  (smaller, for a smoke test)
+"""
+import argparse
+import csv
+import random
+import statistics
+import sys
+import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tsp import data, exact, heuristics as h  # noqa: E402
+
+RESULTS = data.ROOT / "results"
+
+
+def timed(fn, *args, **kwargs):
+    t0 = time.perf_counter()
+    out = fn(*args, **kwargs)
+    return out, time.perf_counter() - t0
+
+
+def submatrix(d, idx):
+    return [[d[i][j] for j in idx] for i in idx]
+
+
+def is_feasible(tour, n):
+    return tour[0] == 0 and tour[-1] == 0 and sorted(tour[:-1]) == list(range(n))
+
+
+def scalability(d, sizes, subsets):
+    rows = []
+    for n in sizes:
+        for s in range(subsets):
+            rng = random.Random(1000 * n + s)
+            idx = [0] + rng.sample(range(1, len(d)), n - 1)
+            sub = submatrix(d, idx)
+            (opt, _), t_exact = timed(exact.held_karp, sub)
+            runs = {
+                "Nearest Neighbour": lambda: h.nearest_neighbour(sub),
+                "NN + 2-opt": lambda: h.two_opt(h.nearest_neighbour(sub), sub),
+                "NN + 2-opt + Or-opt": lambda: h.local_search(h.nearest_neighbour(sub), sub),
+                "Multi-start 2-opt (10 starts)": lambda: h.multi_start(sub, 10, seed=s),
+                "Iterated local search (50 it.)": lambda: h.iterated_local_search(sub, 50, seed=s),
+            }
+            row = {"n": n, "subset": s, "exact_km": round(opt, 4), "exact_s": round(t_exact, 5)}
+            for name, fn in runs.items():
+                tour, t = timed(fn)
+                assert is_feasible(tour, n)
+                length = h.tour_length(tour, sub)
+                row[name + " gap_%"] = round(100 * (length - opt) / opt, 3)
+                row[name + " s"] = round(t, 6)
+            rows.append(row)
+            print(f"n={n:2d} subset={s} exact={opt:8.3f} km in {t_exact:6.2f}s", flush=True)
+    return rows
+
+
+def summarise(rows, methods):
+    out = []
+    for n in sorted({r["n"] for r in rows}):
+        sel = [r for r in rows if r["n"] == n]
+        row = {"n": n, "subsets": len(sel),
+               "exact_median_s": round(statistics.median(r["exact_s"] for r in sel), 5)}
+        for m in methods:
+            row[m + " mean_gap_%"] = round(statistics.mean(r[m + " gap_%"] for r in sel), 3)
+            row[m + " max_gap_%"] = round(max(r[m + " gap_%"] for r in sel), 3)
+            row[m + " median_s"] = round(statistics.median(r[m + " s"] for r in sel), 6)
+        out.append(row)
+    return out
+
+
+def full_instance(d, points, repeats, ils_iters):
+    n = len(d)
+    lower = exact.one_tree_bound(d)
+    specs = [
+        ("Nearest Neighbour", False, lambda s: h.nearest_neighbour(d)),
+        ("NN + 2-opt", False, lambda s: h.two_opt(h.nearest_neighbour(d), d)),
+        ("NN + 2-opt + Or-opt", False, lambda s: h.local_search(h.nearest_neighbour(d), d)),
+        ("Multi-start 2-opt (30 starts)", True, lambda s: h.multi_start(d, 30, seed=s)),
+        (f"Iterated local search ({ils_iters} it.)", True, lambda s: h.iterated_local_search(d, ils_iters, seed=s)),
+    ]
+    results, best_tour, best_len = [], None, float("inf")
+    for name, randomised, fn in specs:
+        lengths, times = [], []
+        for s in range(1, repeats + 1):
+            tour, t = timed(fn, s)
+            assert is_feasible(tour, n)
+            length = h.tour_length(tour, d)
+            lengths.append(length)
+            times.append(t)
+            if length < best_len:
+                best_len, best_tour = length, tour
+        results.append({
+            "method": name, "randomised": randomised, "runs": repeats,
+            "best_km": round(min(lengths), 4), "mean_km": round(statistics.mean(lengths), 4),
+            "std_km": round(statistics.pstdev(lengths), 4),
+            "median_runtime_s": round(statistics.median(times), 5), "feasible": True,
+        })
+        print(f"{name:34s} best={min(lengths):8.3f} mean={statistics.mean(lengths):8.3f} "
+              f"median_t={statistics.median(times):.3f}s", flush=True)
+    for r in results:
+        r["gap_to_best_found_%"] = round(100 * (r["best_km"] - best_len) / best_len, 3)
+        r["gap_to_lower_bound_%"] = round(100 * (r["best_km"] - lower) / lower, 3)
+    return results, best_tour, best_len, lower
+
+
+def write_csv(path, rows):
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        w.writeheader()
+        w.writerows(rows)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--quick", action="store_true")
+    args = ap.parse_args()
+    sizes = [8, 10, 12] if args.quick else [8, 10, 12, 14, 16, 18, 20]
+    subsets, repeats, ils_iters = (2, 2, 20) if args.quick else (5, 5, 300)
+
+    points = data.load_locations()
+    d = data.distance_matrix(points)
+    RESULTS.mkdir(exist_ok=True)
+
+    print("== Scalability: exact vs heuristics ==")
+    rows = scalability(d, sizes, subsets)
+    methods = [k[:-6] for k in rows[0] if k.endswith(" gap_%")]
+    write_csv(RESULTS / "scalability_runs.csv", rows)
+    write_csv(RESULTS / "scalability_summary.csv", summarise(rows, methods))
+
+    print("== Full instance ==")
+    results, tour, length, lower = full_instance(d, points, repeats, ils_iters)
+    write_csv(RESULTS / "full_instance_results.csv", results)
+    with open(RESULTS / "best_tour.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["visit_order", "node_id", "location_name", "latitude", "longitude"])
+        for k, node in enumerate(tour):
+            w.writerow([k, node, points[node][0], points[node][1], points[node][2]])
+    with open(RESULTS / "best_route.txt", "w", encoding="utf-8") as f:
+        f.write(f"Best tour found on the {len(d)}-node instance: {length:.4f} km\n")
+        f.write(f"1-tree lower bound: {lower:.4f} km (best tour is at most "
+                f"{100 * (length - lower) / lower:.2f}% above the optimum)\n\n")
+        f.write("Node ids:\n" + " -> ".join(map(str, tour)) + "\n\n")
+        f.write("Locations:\n" + " -> ".join(points[i][0] for i in tour) + "\n")
+    print(f"best={length:.4f} km, lower bound={lower:.4f} km")
+
+
+if __name__ == "__main__":
+    main()
+
+
+##############################################################################
+# FILE: src/make_plots.py
+##############################################################################
+"""Create the report figures from the CSV files in results/ (needs matplotlib)."""
+import csv
+import sys
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tsp import data, heuristics as h  # noqa: E402
+
+RESULTS = data.ROOT / "results"
+FIG = RESULTS / "figures"
+
+
+def read(name):
+    with open(RESULTS / name, newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def draw_tour(ax, tour, points, title):
+    xs = [points[i][2] for i in tour]
+    ys = [points[i][1] for i in tour]
+    ax.plot(xs, ys, "-", lw=0.8, color="#1f77b4", zorder=1)
+    ax.scatter(xs[1:-1], ys[1:-1], s=9, color="#444444", zorder=2)
+    ax.scatter([xs[0]], [ys[0]], s=70, color="#d62728", marker="*", zorder=3, label="Depot (Colombo Fort)")
+    ax.set_title(title, fontsize=10)
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+    ax.legend(loc="upper right", fontsize=7)
+
+
+def route_map(points, d):
+    rows = read("best_tour.csv")
+    best = [int(r["node_id"]) for r in rows]
+    nn = h.nearest_neighbour(d)
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5.5))
+    draw_tour(axes[0], nn, points, f"Nearest Neighbour: {h.tour_length(nn, d):.1f} km")
+    draw_tour(axes[1], best, points, f"Best tour (iterated local search): {h.tour_length(best, d):.1f} km")
+    fig.tight_layout()
+    fig.savefig(FIG / "route_maps.png", dpi=170)
+    plt.close(fig)
+
+
+def scalability_plots():
+    rows = read("scalability_summary.csv")
+    n = [int(r["n"]) for r in rows]
+    methods = [k[:-len(" mean_gap_%")] for k in rows[0] if k.endswith(" mean_gap_%")]
+    fig, ax = plt.subplots(figsize=(6.2, 4.2))
+    ax.semilogy(n, [float(r["exact_median_s"]) for r in rows], "o-", lw=2, color="#d62728", label="Exact Held-Karp")
+    for m in methods:
+        if m in ("Nearest Neighbour", "NN + 2-opt + Or-opt", "Iterated local search (50 it.)"):
+            ax.semilogy(n, [float(r[m + " median_s"]) for r in rows], "s--", ms=4, label=m)
+    ax.set_xlabel("Number of nodes n (depot included)")
+    ax.set_ylabel("Median runtime (s, log scale)")
+    ax.set_title("Runtime: exact method grows about 5x per +2 nodes")
+    ax.grid(alpha=0.3, which="both")
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(FIG / "scalability_runtime.png", dpi=170)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(6.2, 4.2))
+    for m in methods:
+        ax.plot(n, [float(r[m + " mean_gap_%"]) for r in rows], "o-", label=m)
+    ax.set_xlabel("Number of nodes n (depot included)")
+    ax.set_ylabel("Mean gap to optimum (%)")
+    ax.set_title("Solution quality vs the exact optimum (5 random subsets per n)")
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(FIG / "scalability_gap.png", dpi=170)
+    plt.close(fig)
+
+
+def full_instance_plot():
+    rows = read("full_instance_results.csv")
+    names = [r["method"] for r in rows]
+    best = [float(r["best_km"]) for r in rows]
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    bars = ax.barh(names[::-1], best[::-1], color="#1f77b4")
+    for bar, r in zip(bars, rows[::-1]):
+        ax.text(bar.get_width() + 3, bar.get_y() + bar.get_height() / 2,
+                f"{float(r['best_km']):.1f} km  ({float(r['median_runtime_s']):.3g} s)", va="center", fontsize=8)
+    ax.set_xlim(0, max(best) * 1.35)
+    ax.set_xlabel("Best tour length (km)  -  median runtime in brackets")
+    ax.set_title("Full 100-node instance")
+    fig.tight_layout()
+    fig.savefig(FIG / "full_instance_comparison.png", dpi=170)
+    plt.close(fig)
+
+
+if __name__ == "__main__":
+    FIG.mkdir(parents=True, exist_ok=True)
+    pts = data.load_locations()
+    dist = data.distance_matrix(pts)
+    route_map(pts, dist)
+    scalability_plots()
+    full_instance_plot()
+    print("Figures written to", FIG)
+
+
+##############################################################################
+# FILE: src/validate_data.py
+##############################################################################
+"""Run the dataset quality checks (duplicates, bounding box, matrix consistency)."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tsp import data  # noqa: E402
+
+if __name__ == "__main__":
+    points = data.load_locations()
+    problems = data.validate(points)
+    print(f"{len(points)} nodes checked.")
+    if problems:
+        print("PROBLEMS:", *problems, sep="\n - ")
+        sys.exit(1)
+    print("All dataset checks passed.")
+
+
+##############################################################################
+# FILE: src/build_matrix.py
+##############################################################################
+"""Regenerate data/distance_matrix_km.csv from data/colombo_delivery_locations.csv."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tsp import data  # noqa: E402
+
+if __name__ == "__main__":
+    points = data.load_locations()
+    data.write_matrix_csv(points)
+    print(f"Wrote {len(points)}x{len(points)} Haversine matrix to {data.MATRIX_CSV}")
+
+
+##############################################################################
+# FILE: src/validate_against_osm.py
+##############################################################################
+"""Cross-check every locality in the dataset against OpenStreetMap (Nominatim).
+
+For each location name the top-ranked OSM result inside the Western Province
+bounding box is retrieved and compared with the coordinate stored in
+data/colombo_delivery_locations.csv. The result is written to
+data/osm_validation.csv together with the retrieval timestamp.
+
+Requires internet access. Nominatim usage policy: max 1 request per second and
+an identifying User-Agent. Data (c) OpenStreetMap contributors, ODbL 1.0.
+"""
+import csv
+import datetime
+import json
+import math
+import sys
+import time
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "data" / "colombo_delivery_locations.csv"
+OUT = ROOT / "data" / "osm_validation.csv"
+VIEWBOX = "79.75,7.35,80.30,6.45"  # left,top,right,bottom
+HEADERS = {"User-Agent": "MSc-Optimization-Assignment/1.0 (student coursework)"}
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = p2 - p1, math.radians(lon2 - lon1)
+    h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 6371.0 * 2 * math.asin(math.sqrt(h))
+
+
+def query(name):
+    clean = name.replace("Depot - ", "")
+    params = urllib.parse.urlencode({
+        "q": f"{clean}, Sri Lanka", "format": "json", "limit": 1,
+        "viewbox": VIEWBOX, "bounded": 1, "countrycodes": "lk",
+    })
+    req = urllib.request.Request("https://nominatim.openstreetmap.org/search?" + params, headers=HEADERS)
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def main():
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = []
+    with open(SRC, newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            lat, lon = float(r["latitude"]), float(r["longitude"])
+            try:
+                hits = query(r["location_name"])
+            except Exception as exc:  # network problems should not abort the run
+                print("error", r["location_name"], exc, file=sys.stderr)
+                hits = []
+            if hits:
+                h = hits[0]
+                olat, olon = float(h["lat"]), float(h["lon"])
+                rows.append([r["node_id"], r["location_name"], lat, lon, olat, olon,
+                             round(haversine_km(lat, lon, olat, olon), 3),
+                             h.get("type", ""), h.get("display_name", "").replace(",", ";"), stamp])
+            else:
+                rows.append([r["node_id"], r["location_name"], lat, lon, "", "", "", "", "no OSM match", stamp])
+            time.sleep(1.0)
+    with open(OUT, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["node_id", "location_name", "dataset_lat", "dataset_lon", "osm_lat", "osm_lon",
+                    "offset_km", "osm_type", "osm_display_name", "retrieved_utc"])
+        w.writerows(rows)
+    print(f"Wrote {len(rows)} rows to {OUT}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+##############################################################################
+# FILE: src/fetch_osm_pois.py
+##############################################################################
+"""Optional: fetch a reproducible set of real OSM named POIs around Colombo.
+Requires internet access and requests. Respect the Overpass API usage policy.
+This script is optional; the packaged CSV remains usable offline.
+"""
+import csv, datetime, json, urllib.request
+QUERY = """[out:json][timeout:60];
+(
+ node[\"name\"][\"amenity\"](6.70,79.75,7.30,80.25);
+ way[\"name\"][\"amenity\"](6.70,79.75,7.30,80.25);
+ node[\"name\"][\"shop\"](6.70,79.75,7.30,80.25);
+);
+out center tags;"""
+URL = "https://overpass-api.de/api/interpreter"
+req=urllib.request.Request(URL,data=QUERY.encode(),headers={"User-Agent":"MSc-Optimization-Assignment/1.0"})
+with urllib.request.urlopen(req,timeout=90) as response:
+    data=json.loads(response.read().decode("utf-8"))
+seen=set(); rows=[]
+for el in data.get("elements",[]):
+    tags=el.get("tags",{})
+    name=tags.get("name")
+    lat=el.get("lat",el.get("center",{}).get("lat"))
+    lon=el.get("lon",el.get("center",{}).get("lon"))
+    if not name or lat is None or lon is None: continue
+    key=(name.strip().lower(),round(float(lat),5),round(float(lon),5))
+    if key in seen: continue
+    seen.add(key)
+    rows.append((len(rows),name,float(lat),float(lon),tags.get("amenity",tags.get("shop","POI"))))
+rows.sort(key=lambda x:(x[2],x[3],x[1]))
+out="data/osm_poi_snapshot_"+datetime.datetime.now().strftime("%Y%m%d_%H%M%S")+".csv"
+with open(out,"w",newline="",encoding="utf-8") as f:
+    w=csv.writer(f); w.writerow(["node_id","name","latitude","longitude","category"]); w.writerows(rows)
+print(f"Saved {len(rows)} named OSM POIs to {out}")
+print("Record the retrieval timestamp and attribute OpenStreetMap contributors. Check ODbL terms.")
+
+
+##############################################################################
+# FILE: tests/test_solvers.py
+##############################################################################
+import itertools
+import random
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from tsp import data, exact, heuristics  # noqa: E402
+
+
+def random_matrix(n, seed):
+    rng = random.Random(seed)
+    pts = [("p%d" % i, rng.uniform(6.7, 7.2), rng.uniform(79.8, 80.1)) for i in range(n)]
+    return data.distance_matrix(pts)
+
+
+def brute_force(d):
+    n = len(d)
+    return min(heuristics.tour_length([0, *p, 0], d) for p in itertools.permutations(range(1, n)))
+
+
+class SolverTests(unittest.TestCase):
+    def test_held_karp_matches_brute_force(self):
+        for seed in range(5):
+            d = random_matrix(8, seed)
+            best, tour = exact.held_karp(d)
+            self.assertAlmostEqual(best, brute_force(d), places=9)
+            self.assertAlmostEqual(best, heuristics.tour_length(tour, d), places=9)
+
+    def test_one_tree_bound_is_a_valid_lower_bound(self):
+        for seed in range(5):
+            d = random_matrix(9, seed)
+            opt, _ = exact.held_karp(d)
+            self.assertLessEqual(exact.one_tree_bound(d), opt + 1e-9)
+
+    def test_tours_are_feasible_and_never_better_than_optimum(self):
+        d = random_matrix(10, 42)
+        opt, _ = exact.held_karp(d)
+        tours = [heuristics.nearest_neighbour(d),
+                 heuristics.two_opt(heuristics.nearest_neighbour(d), d),
+                 heuristics.local_search(heuristics.nearest_neighbour(d), d),
+                 heuristics.multi_start(d, 5, seed=1),
+                 heuristics.iterated_local_search(d, 20, seed=1)]
+        for t in tours:
+            self.assertEqual(t[0], 0)
+            self.assertEqual(t[-1], 0)
+            self.assertEqual(sorted(t[:-1]), list(range(10)))
+            self.assertGreaterEqual(heuristics.tour_length(t, d), opt - 1e-9)
+
+    def test_local_search_never_worsens(self):
+        d = random_matrix(30, 7)
+        nn = heuristics.nearest_neighbour(d)
+        self.assertLessEqual(heuristics.tour_length(heuristics.two_opt(nn, d), d), heuristics.tour_length(nn, d))
+        self.assertLessEqual(heuristics.tour_length(heuristics.local_search(nn, d), d),
+                             heuristics.tour_length(heuristics.two_opt(nn, d), d) + 1e-9)
+
+
+class DatasetTests(unittest.TestCase):
+    def test_dataset_passes_validation(self):
+        self.assertEqual(data.validate(data.load_locations()), [])
+
+
+if __name__ == "__main__":
+    unittest.main()
