@@ -1,6 +1,11 @@
-"""Run the dataset quality checks (duplicates, bounding box, matrix consistency)."""
+"""Run the dataset quality checks (duplicates, bounding box, matrix consistency).
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+"""
 import sys
 from pathlib import Path
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tsp import data  # noqa: E402

@@ -1,4 +1,10 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# Assignment brief / local binaries (not part of the code repo)
 Optimization_Assignment*.docx
+*.docx
+docs/final_report.pdf
+final_report.pdf
+docs/15_minute_video_outline.txt

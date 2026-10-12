@@ -7,6 +7,9 @@ data/osm_validation.csv together with the retrieval timestamp.
 
 Requires internet access. Nominatim usage policy: max 1 request per second and
 an identifying User-Agent. Data (c) OpenStreetMap contributors, ODbL 1.0.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
 """
 import csv
 import datetime
@@ -17,6 +20,7 @@ import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "data" / "colombo_delivery_locations.csv"

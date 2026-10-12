@@ -1,6 +1,10 @@
 Dataset notes - Colombo metro delivery routing
 ================================================
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+
 Files
+
 - colombo_delivery_locations.csv : 100 nodes = 1 depot (Colombo Fort) + 99 named localities in the
   Colombo / Gampaha / Kalutara corridor. Columns: node_id, location_name, latitude, longitude, node_type.
 - distance_matrix_km.csv         : derived file. Pairwise Haversine great-circle distances (km) computed

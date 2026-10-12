@@ -1,7 +1,12 @@
-"""Dataset loading, Haversine distances and data-quality checks."""
+"""Dataset loading, Haversine distances and data-quality checks.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+"""
 import csv
 import math
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LOCATIONS_CSV = ROOT / "data" / "colombo_delivery_locations.csv"

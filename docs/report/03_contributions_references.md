@@ -1,6 +1,12 @@
+<!--
+  Report section 10: individual contributions and references.
+  Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+  Created: 2026-10-12
+-->
 # 10. Individual contributions
 
 | Area | Member 1 (M1) | Member 2 (M2) |
+
 |---|---|---|
 | Problem and data | Dataset curation, OSM cross-check, correction of errors and duplicates (`src/validate_against_osm.py`, `src/tsp/data.py`, `data/`) | Review of the cleaned data and its limitations |
 | Exact method | Held–Karp, 1-tree bound, brute-force verification (`src/tsp/exact.py`) | Review and testing of the exact solver |

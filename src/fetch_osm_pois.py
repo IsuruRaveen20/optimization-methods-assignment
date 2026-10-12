@@ -1,8 +1,13 @@
 """Optional: fetch a reproducible set of real OSM named POIs around Colombo.
-Requires internet access and requests. Respect the Overpass API usage policy.
+
+Requires internet access. Respect the Overpass API usage policy.
 This script is optional; the packaged CSV remains usable offline.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
 """
 import csv, datetime, json, urllib.request
+
 QUERY = """[out:json][timeout:60];
 (
  node[\"name\"][\"amenity\"](6.70,79.75,7.30,80.25);

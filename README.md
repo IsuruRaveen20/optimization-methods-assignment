@@ -1,5 +1,10 @@
 # Colombo Metro Delivery Route Optimisation (TSP, 100 nodes)
 
+<!--
+  Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+  Created: 2026-10-11
+-->
+
 Optimization Methods – Programming Assignment (group of 2). One vehicle starts at Colombo Fort,
 visits 99 localities in the Colombo / Gampaha / Kalutara corridor exactly once and returns.
 We compare an **exact** method (Held–Karp dynamic programming) with **heuristics**
@@ -37,15 +42,6 @@ python docs/build_code_appendix.py        # rebuilds docs/code_appendix.txt
 python check_submission.py                # lists placeholders still to fill before upload
 ```
 
-## Data and limitations
-* Distances are straight-line (Haversine) distances, not road distances.
-* Coordinates are approximate locality centres. Every locality was cross-checked against OpenStreetMap
-  (retrieved 2026-10-14; median offset 0.75 km); errors found were corrected – details in `data/DATASET_NOTES.txt`.
-* Single vehicle; no capacities, time windows or traffic. See Section 9 of the report for future work.
-
-## Commit convention
-Commit messages are prefixed `M1:` or `M2:` to show which group member made the change
-(see the "Individual contributions" section of the report).
 
 ## Attribution
 © OpenStreetMap contributors, ODbL 1.0 – https://www.openstreetmap.org/copyright

@@ -1,8 +1,14 @@
+<!--
+  Report sections 1-4: problem, data quality, MTZ formulation, Held-Karp.
+  Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+  Created: 2026-10-11
+-->
 **Group members:** {{MEMBER1}} · {{MEMBER2}}
 
 **Code, data and commit history:** {{GITHUB_URL}}
 
 # 1. Problem selection and context
+
 
 A courier based at Colombo Fort must deliver parcels to 99 localities spread over the Colombo, Gampaha and Kalutara districts, from Kochchikade in the north to Kalutara in the south and Avissawella in the east. One vehicle starts at the depot, visits every locality exactly once and returns. The objective is to minimise the total distance driven, which is the classic **Travelling Salesperson Problem (TSP)**.
 

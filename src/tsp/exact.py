@@ -1,7 +1,15 @@
-"""Exact TSP solver: Held-Karp dynamic programming, O(n^2 * 2^n) time."""
+"""Exact TSP methods: Held-Karp DP and 1-tree lower bound.
+
+Held-Karp solves small instances optimally in O(n^2 * 2^n) time. The 1-tree
+relaxation certifies heuristic quality on the full instance.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-10
+"""
 
 
 def held_karp(d):
+
     """Return (optimal_length, tour) for a closed tour starting/ending at node 0.
 
     State dp[mask][j]: shortest path that starts at node 0, visits exactly the
