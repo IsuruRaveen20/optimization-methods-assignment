@@ -5,16 +5,25 @@ CODE APPENDIX - Colombo Metro Delivery Route Optimisation
 ##############################################################################
 # FILE: src/tsp/__init__.py
 ##############################################################################
-"""Small TSP toolkit: data loading, exact solver (Held-Karp) and heuristics."""
+"""Small TSP toolkit: data loading, exact solver (Held-Karp) and heuristics.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+"""
 
 
 ##############################################################################
 # FILE: src/tsp/data.py
 ##############################################################################
-"""Dataset loading, Haversine distances and data-quality checks."""
+"""Dataset loading, Haversine distances and data-quality checks.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+"""
 import csv
 import math
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LOCATIONS_CSV = ROOT / "data" / "colombo_delivery_locations.csv"
@@ -87,10 +96,18 @@ def validate(points, matrix_path=MATRIX_CSV):
 ##############################################################################
 # FILE: src/tsp/exact.py
 ##############################################################################
-"""Exact TSP solver: Held-Karp dynamic programming, O(n^2 * 2^n) time."""
+"""Exact TSP methods: Held-Karp DP and 1-tree lower bound.
+
+Held-Karp solves small instances optimally in O(n^2 * 2^n) time. The 1-tree
+relaxation certifies heuristic quality on the full instance.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-10
+"""
 
 
 def held_karp(d):
+
     """Return (optimal_length, tour) for a closed tour starting/ending at node 0.
 
     State dp[mask][j]: shortest path that starts at node 0, visits exactly the
@@ -163,12 +180,20 @@ def one_tree_bound(d):
 Tours are lists of node ids that start and end at the depot (node 0),
 e.g. [0, 5, 3, 1, 0]. Internally local search works on the open list
 without the repeated depot at the end.
+
+Includes nearest neighbour, 2-opt, Or-opt, multi-start and iterated local search.
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-10
 """
 import random
 
 
+
 def tour_length(tour, d):
+    """Total length of a closed (or open) tour under distance matrix ``d``."""
     return sum(d[tour[i]][tour[i + 1]] for i in range(len(tour) - 1))
+
 
 
 def nearest_neighbour(d, first=None):
@@ -289,6 +314,9 @@ def iterated_local_search(d, iterations, seed=0):
 
 Usage:  python src/run_experiments.py          (about 2-3 minutes)
         python src/run_experiments.py --quick  (smaller, for a smoke test)
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-10
 """
 import argparse
 import csv
@@ -297,6 +325,7 @@ import statistics
 import sys
 import time
 from pathlib import Path
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tsp import data, exact, heuristics as h  # noqa: E402
@@ -442,10 +471,17 @@ if __name__ == "__main__":
 ##############################################################################
 # FILE: src/make_plots.py
 ##############################################################################
-"""Create the report figures from the CSV files in results/ (needs matplotlib)."""
+"""Create the report figures from the CSV files in results/ (needs matplotlib).
+
+Produces route maps, runtime scaling and solution-quality plots for the report.
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-11
+"""
 import csv
 import sys
 from pathlib import Path
+
 
 import matplotlib
 matplotlib.use("Agg")
@@ -548,9 +584,14 @@ if __name__ == "__main__":
 ##############################################################################
 # FILE: src/validate_data.py
 ##############################################################################
-"""Run the dataset quality checks (duplicates, bounding box, matrix consistency)."""
+"""Run the dataset quality checks (duplicates, bounding box, matrix consistency).
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+"""
 import sys
 from pathlib import Path
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tsp import data  # noqa: E402
@@ -568,9 +609,14 @@ if __name__ == "__main__":
 ##############################################################################
 # FILE: src/build_matrix.py
 ##############################################################################
-"""Regenerate data/distance_matrix_km.csv from data/colombo_delivery_locations.csv."""
+"""Regenerate data/distance_matrix_km.csv from data/colombo_delivery_locations.csv.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
+"""
 import sys
 from pathlib import Path
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tsp import data  # noqa: E402
@@ -593,6 +639,9 @@ data/osm_validation.csv together with the retrieval timestamp.
 
 Requires internet access. Nominatim usage policy: max 1 request per second and
 an identifying User-Agent. Data (c) OpenStreetMap contributors, ODbL 1.0.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
 """
 import csv
 import datetime
@@ -603,6 +652,7 @@ import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "data" / "colombo_delivery_locations.csv"
@@ -665,10 +715,15 @@ if __name__ == "__main__":
 # FILE: src/fetch_osm_pois.py
 ##############################################################################
 """Optional: fetch a reproducible set of real OSM named POIs around Colombo.
-Requires internet access and requests. Respect the Overpass API usage policy.
+
+Requires internet access. Respect the Overpass API usage policy.
 This script is optional; the packaged CSV remains usable offline.
+
+Author: IsuruRaveen20 <isururaveen4520@gmail.com>
+Created: 2026-10-09
 """
 import csv, datetime, json, urllib.request
+
 QUERY = """[out:json][timeout:60];
 (
  node[\"name\"][\"amenity\"](6.70,79.75,7.30,80.25);
@@ -702,6 +757,15 @@ print("Record the retrieval timestamp and attribute OpenStreetMap contributors. 
 ##############################################################################
 # FILE: tests/test_solvers.py
 ##############################################################################
+"""Unit tests for exact and heuristic TSP solvers.
+
+Authors:
+    sharmilak99 <sharmilakavi822@gmail.com>
+        Held-Karp vs brute force, tour feasibility, local-search monotonicity
+    IsuruRaveen20 <isururaveen4520@gmail.com>
+        1-tree lower-bound validity check
+Created: 2026-10-10
+"""
 import itertools
 import random
 import sys
@@ -713,6 +777,7 @@ from tsp import data, exact, heuristics  # noqa: E402
 
 
 def random_matrix(n, seed):
+
     rng = random.Random(seed)
     pts = [("p%d" % i, rng.uniform(6.7, 7.2), rng.uniform(79.8, 80.1)) for i in range(n)]
     return data.distance_matrix(pts)

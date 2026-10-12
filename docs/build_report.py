@@ -3,12 +3,16 @@
 All numbers in the report come from results/*.csv, so the PDF always matches the
 last experiment run. Requires pandoc and xelatex.
     python docs/build_report.py
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-12
 """
 import csv
 import re
 import subprocess
 import sys
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PARTS = sorted((ROOT / "docs" / "report").glob("0[1-9]_*.md"))

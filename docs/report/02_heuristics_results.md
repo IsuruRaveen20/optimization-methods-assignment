@@ -1,6 +1,12 @@
+<!--
+  Report sections 5-9: heuristics, experimental design, results, discussion, future work.
+  Author: sharmilak99 <sharmilakavi822@gmail.com>
+  Created: 2026-10-12
+-->
 # 5. Heuristic methods
 
 All heuristics are in `src/tsp/heuristics.py`. A tour is a list of node ids that starts and ends at the depot.
+
 
 1. **Nearest Neighbour (NN)** – start at the depot and repeatedly drive to the closest unvisited locality. $O(n^2)$, very fast, but greedy: early choices leave long return trips at the end.
 2. **2-opt** – repeatedly remove two edges and reconnect the tour by reversing the segment between them whenever this shortens the tour (Croes, 1958). It removes crossing edges. Moves are evaluated from four distances only, so one pass costs $O(n^2)$.

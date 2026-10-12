@@ -3,12 +3,20 @@
 Tours are lists of node ids that start and end at the depot (node 0),
 e.g. [0, 5, 3, 1, 0]. Internally local search works on the open list
 without the repeated depot at the end.
+
+Includes nearest neighbour, 2-opt, Or-opt, multi-start and iterated local search.
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-10
 """
 import random
 
 
+
 def tour_length(tour, d):
+    """Total length of a closed (or open) tour under distance matrix ``d``."""
     return sum(d[tour[i]][tour[i + 1]] for i in range(len(tour) - 1))
+
 
 
 def nearest_neighbour(d, first=None):

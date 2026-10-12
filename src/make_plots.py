@@ -1,7 +1,14 @@
-"""Create the report figures from the CSV files in results/ (needs matplotlib)."""
+"""Create the report figures from the CSV files in results/ (needs matplotlib).
+
+Produces route maps, runtime scaling and solution-quality plots for the report.
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-11
+"""
 import csv
 import sys
 from pathlib import Path
+
 
 import matplotlib
 matplotlib.use("Agg")

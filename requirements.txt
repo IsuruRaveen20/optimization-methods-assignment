@@ -1,3 +1,5 @@
 # Solvers use the Python standard library only.
 # matplotlib is needed only for src/make_plots.py.
+# Author: sharmilak99 <sharmilakavi822@gmail.com>
+# Created: 2026-10-09
 matplotlib>=3.5

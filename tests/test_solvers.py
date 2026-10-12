@@ -1,3 +1,12 @@
+"""Unit tests for exact and heuristic TSP solvers.
+
+Authors:
+    sharmilak99 <sharmilakavi822@gmail.com>
+        Held-Karp vs brute force, tour feasibility, local-search monotonicity
+    IsuruRaveen20 <isururaveen4520@gmail.com>
+        1-tree lower-bound validity check
+Created: 2026-10-10
+"""
 import itertools
 import random
 import sys
@@ -9,6 +18,7 @@ from tsp import data, exact, heuristics  # noqa: E402
 
 
 def random_matrix(n, seed):
+
     rng = random.Random(seed)
     pts = [("p%d" % i, rng.uniform(6.7, 7.2), rng.uniform(79.8, 80.1)) for i in range(n)]
     return data.distance_matrix(pts)

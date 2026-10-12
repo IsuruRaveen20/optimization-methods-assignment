@@ -5,6 +5,9 @@
 
 Usage:  python src/run_experiments.py          (about 2-3 minutes)
         python src/run_experiments.py --quick  (smaller, for a smoke test)
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-10
 """
 import argparse
 import csv
@@ -13,6 +16,7 @@ import statistics
 import sys
 import time
 from pathlib import Path
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tsp import data, exact, heuristics as h  # noqa: E402

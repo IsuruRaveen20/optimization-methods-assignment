@@ -1,5 +1,10 @@
-"""Concatenate all source files into docs/code_appendix.txt (plain text, as required for submission)."""
+"""Concatenate all source files into docs/code_appendix.txt (plain text, as required for submission).
+
+Author: sharmilak99 <sharmilakavi822@gmail.com>
+Created: 2026-10-12
+"""
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = [
