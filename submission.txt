@@ -1,10 +1,11 @@
 Optimization Methods - Programming Assignment
 Problem: Colombo metro delivery route optimisation (single-vehicle Travelling Salesperson Problem, 1 depot + 99 localities).
+
 Dataset: data/colombo_delivery_locations.csv - 100 nodes, real locality names with approximate centre coordinates,
          cross-checked against OpenStreetMap (data/osm_validation.csv). Derived Haversine matrix: data/distance_matrix_km.csv.
 Methods: Exact Held-Karp dynamic programming (optimal up to 20 nodes); heuristics Nearest Neighbour, 2-opt,
          2-opt + Or-opt, multi-start 2-opt and iterated local search (100 nodes).
-GitHub repository: 
+
+itHub repository: https://github.com/IsuruRaveen20/optimization-methods-assignment
 YouTube 15-minute presentation: 
-Report: docs/final_report.pdf (generated locally; not stored in git)
 Code appendix: docs/code_appendix.txt

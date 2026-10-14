@@ -1,102 +1,102 @@
 visit_order,node_id,location_name,latitude,longitude
 0,0,Depot - Colombo Fort,6.9344,79.8428
-1,1,Pettah,6.9388,79.85
-2,11,Maradana,6.928,79.864
-3,10,Borella,6.914,79.877
-4,8,Rajagiriya,6.909,79.895
-5,16,Wellampitiya,6.936,79.891
-6,14,Orugodawatta,6.947,79.879
-7,15,Peliyagoda,6.968,79.879
-8,72,Hendala,6.998,79.884
-9,71,Wattala,6.989,79.891
-10,70,Kelaniya,6.955,79.922
-11,69,Kiribathgoda,6.978,79.929
-12,76,Kadawatha,7.001,79.951
-13,77,Mahara,7.013,79.939
-14,75,Ragama,7.029,79.917
-15,74,Kandana,7.048,79.895
-16,73,Ja-Ela,7.075,79.891
-17,81,Seeduwa,7.132,79.885
-18,82,Katunayake,7.169,79.884
-19,83,Negombo,7.208,79.835
-20,84,Kochchikade (Negombo),7.26,79.855
-21,80,Minuwangoda,7.174,79.958
-22,78,Ganemulla,7.0683,79.9614
-23,79,Gampaha,7.087,80.014
-24,86,Veyangoda,7.156,80.058
-25,85,Nittambuwa,7.144,80.098
-26,87,Pugoda,6.999,80.131
-27,65,Seethawaka,6.956,80.19
-28,64,Avissawella,6.954,80.211
-29,63,Hanwella,6.906,80.085
-30,88,Dompe,6.949,80.084
-31,68,Malwana,6.958,80.035
-32,67,Biyagama,6.941,80.002
-33,22,Kaduwela,6.936,79.984
-34,66,Kaduwela Town,6.934,79.984
-35,23,Malabe,6.906,79.954
-36,55,Akuregoda,6.887,79.948
-37,52,Thalawathugoda,6.872,79.941
-38,54,Pelawatte,6.892,79.937
-39,53,Talangama,6.904,79.94
-40,41,Koswatta,6.906,79.925
-41,56,Diyatha Uyana,6.907,79.916
-42,9,Battaramulla,6.902,79.918
-43,57,Battaramulla Junction,6.9,79.918
-44,42,Ethul Kotte,6.892,79.906
-45,17,Kotte,6.89,79.902
-46,43,Pita Kotte,6.886,79.901
-47,40,Nawala,6.888,79.889
-48,39,Kirimandala Mawatha,6.889,79.883
-49,33,Thimbirigasyaya,6.89,79.878
+1,30,Slave Island,6.9258,79.85
+2,31,Union Place,6.9177,79.856
+3,2,Kollupitiya,6.9147,79.848
+4,37,Bambalapitiya North,6.9,79.856
+5,38,Milagiriya,6.897,79.858
+6,3,Bambalapitiya,6.8936,79.856
+7,36,Wellawatte North,6.882,79.86
+8,4,Wellawatte,6.8742,79.86
+9,5,Dehiwala,6.851,79.865
+10,6,Mount Lavinia,6.8389,79.865
+11,29,Ratmalana,6.817,79.876
+12,89,Katubedda,6.797,79.882
+13,91,Angulana,6.79,79.879
+14,28,Moratuwa,6.773,79.881
+15,92,Lunawa,6.782,79.883
+16,90,Rawathawatta,6.789,79.887
+17,21,Piliyandala,6.801,79.922
+18,27,Kesbewa,6.79,79.94
+19,93,Panadura,6.713,79.904
+20,95,Keselwatta,6.701,79.912
+21,94,Wadduwa,6.668,79.923
+22,99,Kalutara,6.585,79.96
+23,96,Bandaragama,6.7145,79.989
+24,97,Horana,6.715,80.062
+25,98,Ingiriya,6.738,80.178
+26,62,Padukka,6.846,80.091
+27,61,Watareka,6.829,80.048
+28,60,Godagama,6.838,80.04
+29,59,Meegoda,6.84,80.035
+30,25,Homagama,6.844,80.003
+31,24,Athurugiriya,6.873,80.001
+32,26,Kottawa,6.841,79.965
+33,58,Makumbura,6.84,79.951
+34,18,Pannipitiya,6.846,79.947
+35,51,Pamunuwa,6.847,79.931
+36,19,Maharagama,6.848,79.926
+37,50,Watapuluwa,6.854,79.92
+38,49,Navinna,6.852,79.912
+39,20,Boralesgamuwa,6.841,79.9
+40,48,Gangodawila,6.862,79.9
+41,45,Udahamulla,6.872,79.91
+42,44,Mirihana,6.875,79.899
+43,47,Delkanda,6.865,79.891
+44,46,Wijerama,6.868,79.887
+45,7,Nugegoda,6.8728,79.889
+46,12,Kirulapone,6.879,79.874
+47,35,Pamankada,6.883,79.875
+48,34,Kirulapone North,6.886,79.875
+49,32,Havelock Town,6.89,79.869
 50,13,Narahenpita,6.89,79.877
-51,32,Havelock Town,6.89,79.869
-52,34,Kirulapone North,6.886,79.875
-53,35,Pamankada,6.883,79.875
-54,12,Kirulapone,6.879,79.874
-55,7,Nugegoda,6.8728,79.889
-56,46,Wijerama,6.868,79.887
-57,47,Delkanda,6.865,79.891
-58,44,Mirihana,6.875,79.899
-59,45,Udahamulla,6.872,79.91
-60,48,Gangodawila,6.862,79.9
-61,20,Boralesgamuwa,6.841,79.9
-62,49,Navinna,6.852,79.912
-63,50,Watapuluwa,6.854,79.92
-64,19,Maharagama,6.848,79.926
-65,51,Pamunuwa,6.847,79.931
-66,18,Pannipitiya,6.846,79.947
-67,58,Makumbura,6.84,79.951
-68,26,Kottawa,6.841,79.965
-69,24,Athurugiriya,6.873,80.001
-70,25,Homagama,6.844,80.003
-71,59,Meegoda,6.84,80.035
-72,60,Godagama,6.838,80.04
-73,61,Watareka,6.829,80.048
-74,62,Padukka,6.846,80.091
-75,98,Ingiriya,6.738,80.178
-76,97,Horana,6.715,80.062
-77,96,Bandaragama,6.7145,79.989
-78,99,Kalutara,6.585,79.96
-79,94,Wadduwa,6.668,79.923
-80,95,Keselwatta,6.701,79.912
-81,93,Panadura,6.713,79.904
-82,27,Kesbewa,6.79,79.94
-83,21,Piliyandala,6.801,79.922
-84,90,Rawathawatta,6.789,79.887
-85,92,Lunawa,6.782,79.883
-86,28,Moratuwa,6.773,79.881
-87,91,Angulana,6.79,79.879
-88,89,Katubedda,6.797,79.882
-89,29,Ratmalana,6.817,79.876
-90,6,Mount Lavinia,6.8389,79.865
-91,5,Dehiwala,6.851,79.865
-92,4,Wellawatte,6.8742,79.86
-93,36,Wellawatte North,6.882,79.86
-94,3,Bambalapitiya,6.8936,79.856
-95,38,Milagiriya,6.897,79.858
-96,37,Bambalapitiya North,6.9,79.856
-97,2,Kollupitiya,6.9147,79.848
-98,31,Union Place,6.9177,79.856
-99,30,Slave Island,6.9258,79.85
+51,33,Thimbirigasyaya,6.89,79.878
+52,39,Kirimandala Mawatha,6.889,79.883
+53,40,Nawala,6.888,79.889
+54,43,Pita Kotte,6.886,79.901
+55,17,Kotte,6.89,79.902
+56,42,Ethul Kotte,6.892,79.906
+57,57,Battaramulla Junction,6.9,79.918
+58,9,Battaramulla,6.902,79.918
+59,56,Diyatha Uyana,6.907,79.916
+60,41,Koswatta,6.906,79.925
+61,53,Talangama,6.904,79.94
+62,54,Pelawatte,6.892,79.937
+63,52,Thalawathugoda,6.872,79.941
+64,55,Akuregoda,6.887,79.948
+65,23,Malabe,6.906,79.954
+66,66,Kaduwela Town,6.934,79.984
+67,22,Kaduwela,6.936,79.984
+68,67,Biyagama,6.941,80.002
+69,68,Malwana,6.958,80.035
+70,88,Dompe,6.949,80.084
+71,63,Hanwella,6.906,80.085
+72,64,Avissawella,6.954,80.211
+73,65,Seethawaka,6.956,80.19
+74,87,Pugoda,6.999,80.131
+75,85,Nittambuwa,7.144,80.098
+76,86,Veyangoda,7.156,80.058
+77,79,Gampaha,7.087,80.014
+78,78,Ganemulla,7.0683,79.9614
+79,80,Minuwangoda,7.174,79.958
+80,84,Kochchikade (Negombo),7.26,79.855
+81,83,Negombo,7.208,79.835
+82,82,Katunayake,7.169,79.884
+83,81,Seeduwa,7.132,79.885
+84,73,Ja-Ela,7.075,79.891
+85,74,Kandana,7.048,79.895
+86,75,Ragama,7.029,79.917
+87,77,Mahara,7.013,79.939
+88,76,Kadawatha,7.001,79.951
+89,69,Kiribathgoda,6.978,79.929
+90,70,Kelaniya,6.955,79.922
+91,71,Wattala,6.989,79.891
+92,72,Hendala,6.998,79.884
+93,15,Peliyagoda,6.968,79.879
+94,14,Orugodawatta,6.947,79.879
+95,16,Wellampitiya,6.936,79.891
+96,8,Rajagiriya,6.909,79.895
+97,10,Borella,6.914,79.877
+98,11,Maradana,6.928,79.864
+99,1,Pettah,6.9388,79.85
 100,0,Depot - Colombo Fort,6.9344,79.8428
